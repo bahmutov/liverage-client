@@ -72,7 +72,7 @@ function createCoverageStream () {
     }
     ws.onclose = function () {
       tinyToast.show('Server has finished').hide(5000)
-      // TODO change ui?
+    // TODO change ui?
     }
 
     // a couple of testing shortcuts

@@ -1,7 +1,7 @@
 {
   "name": "liverage-client",
   "description": "HTML client for watching live code coverage updates",
-  "version": "1.0.0",
+  "version": "0.0.0-semantic-release",
   "author": "Gleb Bahmutov <gleb.bahmutov@gmail.com>",
   "bugs": "https://github.com/bahmutov/liverage-client/issues",
   "config": {
@@ -54,7 +54,8 @@
     "secure": "nsp check",
     "size": "t=\"$(npm pack .)\"; wc -c \"${t}\"; tar tvf \"${t}\"; rm \"${t}\";",
     "test": "npm run unit",
-    "unit": "mocha src/*-spec.js"
+    "unit": "mocha src/*-spec.js",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "devDependencies": {
     "ban-sensitive-files": "1.8.2",
@@ -66,6 +67,7 @@
     "pre-git": "3.8.3",
     "standard": "6.0.8",
     "standard-format": "2.1.1",
-    "webpack": "1.13.0"
+    "webpack": "1.13.0",
+    "semantic-release": "^4.3.5"
   }
 }
