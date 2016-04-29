@@ -9,6 +9,7 @@
       "commit-msg": "simple",
       "pre-commit": [
         "npm run deps",
+        "npm run build",
         "npm test",
         "npm run ban"
       ],
@@ -46,6 +47,7 @@
     "ban": "ban",
     "build": "webpack",
     "deps": "deps-ok",
+    "deploy": "grunty grunt-gh-pages gh-pages deploy.json",
     "format": "standard-format -w src/*.js",
     "issues": "git-issues",
     "license": "license-checker --production --onlyunknown --csv",
@@ -61,13 +63,15 @@
     "ban-sensitive-files": "1.8.2",
     "deps-ok": "1.1.0",
     "git-issues": "1.2.0",
+    "grunt-gh-pages": "1.1.0",
+    "grunty": "0.3.0",
     "license-checker": "5.1.1",
     "mocha": "2.4.5",
     "nsp": "2.3.2",
     "pre-git": "3.8.3",
+    "semantic-release": "^4.3.5",
     "standard": "6.0.8",
     "standard-format": "2.1.1",
-    "webpack": "1.13.0",
-    "semantic-release": "^4.3.5"
+    "webpack": "1.13.0"
   }
 }

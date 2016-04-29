@@ -8,6 +8,9 @@
 [![semantic-release][semantic-image] ][semantic-url]
 [![js-standard-style][standard-image]][standard-url]
 
+[liverage](https://github.com/bahmutov/liverage) is a good source of live server-side coverage
+event stream.
+
 ### Small print
 
 Author: Gleb Bahmutov &lt;gleb.bahmutov@gmail.com&gt; &copy; 2016
