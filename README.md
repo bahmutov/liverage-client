@@ -11,6 +11,16 @@
 [liverage](https://github.com/bahmutov/liverage) is a good source of live server-side coverage
 event stream.
 
+## Install and use
+
+```sh
+npm install liverage-client
+cd node_modules/liverage-client
+open dist/index.html
+```
+
+Edit `dist/index.html` to change the server's URL
+
 ### Small print
 
 Author: Gleb Bahmutov &lt;gleb.bahmutov@gmail.com&gt; &copy; 2016
