@@ -53,6 +53,7 @@
     "license": "license-checker --production --onlyunknown --csv",
     "lint": "standard --verbose src/*.js",
     "stylelint": "stylelint dist/*.css",
+    "stylefmt": "stylefmt dist/liverage-client.css",
     "pretest": "npm run format && npm run lint",
     "secure": "nsp check",
     "size": "t=\"$(npm pack .)\"; wc -c \"${t}\"; tar tvf \"${t}\"; rm \"${t}\";",
@@ -73,6 +74,7 @@
     "semantic-release": "^4.3.5",
     "standard": "6.0.8",
     "standard-format": "2.1.1",
+    "stylefmt": "3.2.1",
     "stylelint": "6.2.2",
     "stylelint-config-standard": "6.0.0",
     "webpack": "1.13.0"
