@@ -11,6 +11,8 @@
 [liverage](https://github.com/bahmutov/liverage) is a good source of live server-side coverage
 event stream.
 
+![liverage demo](images/liverage.gif)
+
 ## Install and use
 
 ```sh
