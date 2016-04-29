@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Real time coverage</title>
+  <meta charset="utf-8" />
+  <link rel="stylesheet" href="base.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+  table.coverage td.text {
+    text-align: left;
+    padding-left: 5px;
+  }
+  table.coverage td {
+    min-width: 30px;
+    text-align: right;
+    padding-right: 5px;
+  }
+  table.coverage td.line-coverage {
+    min-width: 30px;
+    padding-right: 0px;
+    margin-right: 5px;
+  }
+  </style>
+</head>
+<body>
+  <div class='wrapper'>
+    <div id="app"></div>
+  </div>
+  <script src="https://cdn.rawgit.com/bahmutov/tiny-toast/v1.1.0/dist/tiny-toast.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/4.1.0/rx.all.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cyclejs-core/6.0.3/cycle.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cyclejs-dom/9.4.0/cycle-dom.js"></script>
+  <script src="liverage-client.js"></script>
+</body>
+</html>
