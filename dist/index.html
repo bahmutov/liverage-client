@@ -5,6 +5,17 @@
   <meta charset="utf-8" />
   <link rel="stylesheet" href="liverage-client.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy"
+    content="script-src
+      https://cdn.rawgit.com/bahmutov/tiny-toast/
+      https://cdnjs.cloudflare.com/ajax/libs/rxjs/
+      https://cdnjs.cloudflare.com/ajax/libs/cyclejs-core/
+      https://cdnjs.cloudflare.com/ajax/libs/cyclejs-dom/
+      'self';
+      style-src 'self';
+      connect-src ws://localhost:*;
+      default-src 'none';"
+  >
 </head>
 <body>
   <div class='wrapper'>

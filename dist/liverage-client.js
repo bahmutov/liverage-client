@@ -218,7 +218,7 @@
 
 	'use strict'
 
-	/* global Rx, WebSocket, tinyToast */
+	/* global Rx, WebSocket */
 
 	function openConnection (url) {
 	  return new Promise((resolve, reject) => {
