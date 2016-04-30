@@ -9,6 +9,7 @@
       "commit-msg": "simple",
       "pre-commit": [
         "npm run deps",
+        "npm run stylelint",
         "npm run build",
         "npm test",
         "npm run ban"
