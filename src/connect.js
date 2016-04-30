@@ -1,29 +1,37 @@
 'use strict'
 
-/* global Rx, WebSocket, tinyToast */
+/* global Rx, WebSocket */
+
+function openConnection (url) {
+  return new Promise((resolve, reject) => {
+    const ws = new WebSocket(url)
+    ws.onopen = () => {
+      resolve(ws)
+    }
+    ws.onerror = () => {
+      reject()
+    }
+  })
+}
 
 function connect (url) {
+  // we could use exponential backoff strategy but for now lets make it faster
+  // http://blog.johnryding.com/post/78544969349/how-to-reconnect-web-sockets-in-a-realtime-web-app
   return Rx.Observable.create(function (observer) {
-    const ws = new WebSocket(url)
-    var successfullyConnected = false
-    ws.onopen = function open () {
-      console.log('opened socket')
-      successfullyConnected = true
-      observer.onNext(ws)
-      observer.onCompleted()
+    const interval = 2000
+
+    function attempConnection () {
+      openConnection(url).then((ws) => {
+        console.log('opened socket')
+        observer.onNext(ws)
+        observer.onCompleted()
+      }, () => {
+        observer.onNext(new Error('Could not connect to the web socket server, retrying'))
+        setTimeout(attempConnection, interval)
+      })
     }
 
-    ws.onerror = function () {
-      tinyToast.show('Could not connect to the web socket server').hide(4000)
-      observer.onError(new Error('Could not connect to the web socket server'))
-    }
-
-    ws.onclose = function () {
-      if (successfullyConnected) {
-        tinyToast.show('Server has finished').hide(5000)
-      }
-      observer.onCompleted()
-    }
+    attempConnection()
   })
 }
 

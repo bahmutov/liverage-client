@@ -5,13 +5,14 @@ const connect = require('./connect')
 const isSource = (data) => typeof data.source === 'string' && data.filename
 const isCoverage = (data) => typeof data.coverage === 'string'
 const isLineIncrement = (data) => typeof data.line === 'number'
+const isError = (x) => x instanceof Error
 
 function formServerUrl () {
   return 'ws://localhost:3032'
 }
 
 function createCoverageStream () {
-  /* global Rx */
+  /* global Rx, tinyToast */
   const url = formServerUrl()
 
   return Rx.Observable.create(function (observer) {
@@ -56,7 +57,13 @@ function createCoverageStream () {
     }
 
     connect(url).subscribe({
-      onNext: (ws) => {
+      onNext: (wsOrError) => {
+        if (isError(wsOrError)) {
+          tinyToast.show('Could not connect to the liverage server, retrying').hide(4000)
+          return
+        }
+
+        const ws = wsOrError
         ws.onmessage = function message (message) {
           const data = JSON.parse(message.data)
           console.log('received socket message with', Object.keys(data))
@@ -73,6 +80,11 @@ function createCoverageStream () {
           if (isLineIncrement(data)) {
             return incrementCoverage(data.line)
           }
+        }
+
+        ws.onclose = function () {
+          tinyToast.show('Server has finished').hide(5000)
+          observer.onCompleted()
         }
       },
       onError: (err) => {

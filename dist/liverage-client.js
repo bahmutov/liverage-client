@@ -114,13 +114,14 @@
 	const isSource = (data) => typeof data.source === 'string' && data.filename
 	const isCoverage = (data) => typeof data.coverage === 'string'
 	const isLineIncrement = (data) => typeof data.line === 'number'
+	const isError = (x) => x instanceof Error
 
 	function formServerUrl () {
 	  return 'ws://localhost:3032'
 	}
 
 	function createCoverageStream () {
-	  /* global Rx */
+	  /* global Rx, tinyToast */
 	  const url = formServerUrl()
 
 	  return Rx.Observable.create(function (observer) {
@@ -165,7 +166,13 @@
 	    }
 
 	    connect(url).subscribe({
-	      onNext: (ws) => {
+	      onNext: (wsOrError) => {
+	        if (isError(wsOrError)) {
+	          tinyToast.show('Could not connect to the liverage server, retrying').hide(4000)
+	          return
+	        }
+
+	        const ws = wsOrError
 	        ws.onmessage = function message (message) {
 	          const data = JSON.parse(message.data)
 	          console.log('received socket message with', Object.keys(data))
@@ -182,6 +189,11 @@
 	          if (isLineIncrement(data)) {
 	            return incrementCoverage(data.line)
 	          }
+	        }
+
+	        ws.onclose = function () {
+	          tinyToast.show('Server has finished').hide(5000)
+	          observer.onCompleted()
 	        }
 	      },
 	      onError: (err) => {
@@ -208,28 +220,36 @@
 
 	/* global Rx, WebSocket, tinyToast */
 
-	function connect (url) {
-	  return Rx.Observable.create(function (observer) {
+	function openConnection (url) {
+	  return new Promise((resolve, reject) => {
 	    const ws = new WebSocket(url)
-	    var successfullyConnected = false
-	    ws.onopen = function open () {
-	      console.log('opened socket')
-	      successfullyConnected = true
-	      observer.onNext(ws)
-	      observer.onCompleted()
+	    ws.onopen = () => {
+	      resolve(ws)
+	    }
+	    ws.onerror = () => {
+	      reject()
+	    }
+	  })
+	}
+
+	function connect (url) {
+	  // we could use exponential backoff strategy but for now lets make it faster
+	  // http://blog.johnryding.com/post/78544969349/how-to-reconnect-web-sockets-in-a-realtime-web-app
+	  return Rx.Observable.create(function (observer) {
+	    const interval = 2000
+
+	    function attempConnection () {
+	      openConnection(url).then((ws) => {
+	        console.log('opened socket')
+	        observer.onNext(ws)
+	        observer.onCompleted()
+	      }, () => {
+	        observer.onNext(new Error('Could not connect to the web socket server, retrying'))
+	        setTimeout(attempConnection, interval)
+	      })
 	    }
 
-	    ws.onerror = function () {
-	      tinyToast.show('Could not connect to the web socket server').hide(4000)
-	      observer.onError(new Error('Could not connect to the web socket server'))
-	    }
-
-	    ws.onclose = function () {
-	      if (successfullyConnected) {
-	        tinyToast.show('Server has finished').hide(5000)
-	      }
-	      observer.onCompleted()
-	    }
+	    attempConnection()
 	  })
 	}
 
