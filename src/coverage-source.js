@@ -1,11 +1,19 @@
 'use strict'
 
+const connect = require('./connect')
+
 const isSource = (data) => typeof data.source === 'string' && data.filename
 const isCoverage = (data) => typeof data.coverage === 'string'
 const isLineIncrement = (data) => typeof data.line === 'number'
 
+function formServerUrl () {
+  return 'ws://localhost:3032'
+}
+
 function createCoverageStream () {
-  /* global Rx, WebSocket, tinyToast */
+  /* global Rx */
+  const url = formServerUrl()
+
   return Rx.Observable.create(function (observer) {
     // mutable data for now?
     var filename
@@ -47,37 +55,26 @@ function createCoverageStream () {
       observer.onNext({source, coverage})
     }
 
-    const ws = new WebSocket('ws://localhost:3032')
-    var successfullyConnected = false
-    ws.onopen = function open () {
-      console.log('opened socket')
-      successfullyConnected = true
-    }
-    ws.onerror = function () {
-      tinyToast.show('Could not connect to the web socket server').hide(4000)
-    }
-    ws.onmessage = function message (message) {
-      console.log('received socket message', message)
-      const data = JSON.parse(message.data)
-      if (isSource(data)) {
-        console.log('received new source')
-        return setSource(data.source, data.filename)
+    connect(url).then((ws) => {
+      ws.onmessage = function message (message) {
+        console.log('received socket message', message)
+        const data = JSON.parse(message.data)
+        if (isSource(data)) {
+          console.log('received new source')
+          return setSource(data.source, data.filename)
+        }
+        if (isCoverage(data)) {
+          console.log('received new code coverage')
+          coverage = JSON.parse(data.coverage)
+          return setCoverage(coverage)
+        }
+        if (isLineIncrement(data)) {
+          return incrementCoverage(data.line)
+        }
       }
-      if (isCoverage(data)) {
-        console.log('received new code coverage')
-        coverage = JSON.parse(data.coverage)
-        return setCoverage(coverage)
-      }
-      if (isLineIncrement(data)) {
-        return incrementCoverage(data.line)
-      }
-    }
-    ws.onclose = function () {
-      // TODO change ui?
-      if (successfullyConnected) {
-        tinyToast.show('Server has finished').hide(5000)
-      }
-    }
+    }).catch((err) => {
+      console.error(err)
+    })
 
     // a couple of testing shortcuts
     window.liverage = {setSource, setCoverage, incrementCoverage}
