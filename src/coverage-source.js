@@ -55,25 +55,32 @@ function createCoverageStream () {
       observer.onNext({source, coverage})
     }
 
-    connect(url).then((ws) => {
-      ws.onmessage = function message (message) {
-        console.log('received socket message', message)
-        const data = JSON.parse(message.data)
-        if (isSource(data)) {
-          console.log('received new source')
-          return setSource(data.source, data.filename)
+    connect(url).subscribe({
+      onNext: (ws) => {
+        ws.onmessage = function message (message) {
+          const data = JSON.parse(message.data)
+          console.log('received socket message with', Object.keys(data))
+
+          if (isSource(data)) {
+            console.log('received new source')
+            return setSource(data.source, data.filename)
+          }
+          if (isCoverage(data)) {
+            console.log('received new code coverage')
+            coverage = JSON.parse(data.coverage)
+            return setCoverage(coverage)
+          }
+          if (isLineIncrement(data)) {
+            return incrementCoverage(data.line)
+          }
         }
-        if (isCoverage(data)) {
-          console.log('received new code coverage')
-          coverage = JSON.parse(data.coverage)
-          return setCoverage(coverage)
-        }
-        if (isLineIncrement(data)) {
-          return incrementCoverage(data.line)
-        }
+      },
+      onError: (err) => {
+        console.error('connection error', err)
+      },
+      onCompleted: () => {
+        console.log('connection completed')
       }
-    }).catch((err) => {
-      console.error(err)
     })
 
     // a couple of testing shortcuts

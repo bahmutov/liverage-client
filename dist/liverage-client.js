@@ -120,7 +120,7 @@
 	}
 
 	function createCoverageStream () {
-	  /* global Rx, WebSocket, tinyToast */
+	  /* global Rx */
 	  const url = formServerUrl()
 
 	  return Rx.Observable.create(function (observer) {
@@ -164,25 +164,32 @@
 	      observer.onNext({source, coverage})
 	    }
 
-	    connect(url).then((ws) => {
-	      ws.onmessage = function message (message) {
-	        console.log('received socket message', message)
-	        const data = JSON.parse(message.data)
-	        if (isSource(data)) {
-	          console.log('received new source')
-	          return setSource(data.source, data.filename)
+	    connect(url).subscribe({
+	      onNext: (ws) => {
+	        ws.onmessage = function message (message) {
+	          const data = JSON.parse(message.data)
+	          console.log('received socket message with', Object.keys(data))
+
+	          if (isSource(data)) {
+	            console.log('received new source')
+	            return setSource(data.source, data.filename)
+	          }
+	          if (isCoverage(data)) {
+	            console.log('received new code coverage')
+	            coverage = JSON.parse(data.coverage)
+	            return setCoverage(coverage)
+	          }
+	          if (isLineIncrement(data)) {
+	            return incrementCoverage(data.line)
+	          }
 	        }
-	        if (isCoverage(data)) {
-	          console.log('received new code coverage')
-	          coverage = JSON.parse(data.coverage)
-	          return setCoverage(coverage)
-	        }
-	        if (isLineIncrement(data)) {
-	          return incrementCoverage(data.line)
-	        }
+	      },
+	      onError: (err) => {
+	        console.error('connection error', err)
+	      },
+	      onCompleted: () => {
+	        console.log('connection completed')
 	      }
-	    }).catch((err) => {
-	      console.error(err)
 	    })
 
 	    // a couple of testing shortcuts
@@ -199,27 +206,29 @@
 
 	'use strict'
 
+	/* global Rx, WebSocket, tinyToast */
+
 	function connect (url) {
-	  return new Promise(function (resolve, reject) {
+	  return Rx.Observable.create(function (observer) {
 	    const ws = new WebSocket(url)
 	    var successfullyConnected = false
 	    ws.onopen = function open () {
 	      console.log('opened socket')
 	      successfullyConnected = true
-	      resolve(ws)
+	      observer.onNext(ws)
+	      observer.onCompleted()
 	    }
 
 	    ws.onerror = function () {
 	      tinyToast.show('Could not connect to the web socket server').hide(4000)
+	      observer.onError(new Error('Could not connect to the web socket server'))
 	    }
 
 	    ws.onclose = function () {
-	      // TODO change ui?
 	      if (successfullyConnected) {
 	        tinyToast.show('Server has finished').hide(5000)
-	      } else {
-	        reject(new Error('Could not connect to ' + url))
 	      }
+	      observer.onCompleted()
 	    }
 	  })
 	}
