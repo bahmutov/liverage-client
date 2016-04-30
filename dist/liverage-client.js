@@ -157,8 +157,10 @@
 	    }
 
 	    const ws = new WebSocket('ws://localhost:3032')
+	    var successfullyConnected = false
 	    ws.onopen = function open () {
 	      console.log('opened socket')
+	      successfullyConnected = true
 	    }
 	    ws.onerror = function () {
 	      tinyToast.show('Could not connect to the web socket server').hide(4000)
@@ -180,8 +182,10 @@
 	      }
 	    }
 	    ws.onclose = function () {
-	      tinyToast.show('Server has finished').hide(5000)
-	    // TODO change ui?
+	      // TODO change ui?
+	      if (successfullyConnected) {
+	        tinyToast.show('Server has finished').hide(5000)
+	      }
 	    }
 
 	    // a couple of testing shortcuts
